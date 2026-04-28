@@ -14,20 +14,50 @@ jobs:
       - name: Kodu çek
         uses: actions/checkout@v4
 
-      - name: Ana dosyayı yeniden adlandır (buildozer main.py bekliyor)
+      - name: Java 17 kur
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Python 3.10 kur
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Sistem bağımlılıklarını kur
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y \
+            build-essential git zip unzip \
+            autoconf libtool pkg-config \
+            zlib1g-dev libncurses5-dev libncursesw5-dev \
+            libffi-dev libssl-dev cmake ccache
+
+      - name: Buildozer ve Cython kur
+        run: |
+          pip install --upgrade pip setuptools wheel
+          pip install buildozer
+          pip install cython==0.29.37
+
+      - name: Ana dosyayı main.py olarak kopyala
         run: cp basketbol_kivy.py main.py
 
-      - name: Kivy Buildozer Action ile APK build et
-        uses: kivy/buildozer-action@v1
-        id: buildozer
+      - name: Buildozer önbelleği
+        uses: actions/cache@v4
         with:
-          filename: buildozer.spec
-          buildozer_version: stable
+          path: ~/.buildozer
+          key: ${{ runner.os }}-buildozer-${{ hashFiles('buildozer.spec') }}
+          restore-keys: |
+            ${{ runner.os }}-buildozer-
 
-      - name: APK dosyasını yükle
+      - name: APK build et
+        run: yes | buildozer -v android debug 2>&1
+
+      - name: APK yükle
         uses: actions/upload-artifact@v4
         with:
           name: Basketbol-APK
-          path: ${{ steps.buildozer.outputs.filename }}
+          path: bin/*.apk
           retention-days: 30
 

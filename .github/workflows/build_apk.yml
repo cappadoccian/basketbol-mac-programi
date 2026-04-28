@@ -3,21 +3,21 @@ name: Build Android APK
 on:
   push:
     branches: [ main, master ]
-  workflow_dispatch:   # Manuel tetikleme butonu
+  workflow_dispatch:
 
 jobs:
   build-apk:
     runs-on: ubuntu-22.04
-    timeout-minutes: 60
+    timeout-minutes: 90
 
     steps:
       - name: Kodu çek
         uses: actions/checkout@v4
 
-      - name: Python 3.12 kur
+      - name: Python 3.11 kur
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: '3.11'
 
       - name: Sistem bağımlılıklarını kur
         run: |
@@ -29,10 +29,10 @@ jobs:
             libffi-dev libssl-dev cmake ccache \
             libltdl-dev libgdbm-dev libbz2-dev
 
-      - name: Buildozer ve Cython kur
+      - name: pip ve bağımlılıkları kur
         run: |
-          pip install --upgrade pip
-          pip install buildozer==1.5.0 cython==3.0.3
+          pip install --upgrade pip setuptools wheel
+          pip install buildozer==1.5.0 cython==0.29.37
 
       - name: Android SDK Önbelleği
         uses: actions/cache@v4
@@ -44,7 +44,7 @@ jobs:
 
       - name: APK'yı build et
         run: |
-          buildozer -v android debug
+          buildozer -v android debug 2>&1
 
       - name: APK dosyasını yükle
         uses: actions/upload-artifact@v4

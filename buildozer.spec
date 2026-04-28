@@ -7,7 +7,6 @@ package.domain = com.basketfaul
 # Ana dosya (uzantısız)
 source.dir = .
 source.include_exts = py,png,jpg,kv,atlas
-main.py = basketbol_kivy.py
 
 # Uygulama versiyonu
 version = 1.0
